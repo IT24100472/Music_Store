@@ -22,16 +22,35 @@ public class UserController {
 
     @PostMapping("/register")
     public ModelAndView register(@RequestParam String firstname, @RequestParam String lastname, @RequestParam String email, @RequestParam String usertype, @RequestParam String password) {
-        userService.addUser(firstname, lastname, email, usertype, password);
+        try{
+            User checkUser = userService.checkUser(email);
 
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("index");
-        return modelAndView;
+            if (checkUser == null) {
+                userService.addUser(firstname, lastname, email, usertype, password);
+
+                ModelAndView modelAndView = new ModelAndView();
+                modelAndView.addObject("success", "Registration successful");
+                modelAndView.setViewName("login");
+                return modelAndView;
+            } else {
+                ModelAndView modelAndView = new ModelAndView();
+                modelAndView.addObject("error", "User is already registered");
+                modelAndView.setViewName("index");
+                return modelAndView;
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.addObject("error", "An unexpected error occurred!");
+            modelAndView.setViewName("index"); // create error.jsp
+            return modelAndView;
+        }
+
     }
 
     @PostMapping("/login")
     public String login(@RequestParam String email, @RequestParam String password,
-                              HttpSession session, HttpServletResponse response) {
+                              HttpSession session, HttpServletResponse response, Model model) {
         try {
         User currentUser = userService.getUser(email, password);
 
@@ -56,7 +75,8 @@ public class UserController {
 
                 }
             } else {
-                return "index";
+                model.addAttribute("error", "Username or password incorrect");
+                return "login";
             }
             return "index";
         } catch (RuntimeException e) {
@@ -81,6 +101,27 @@ public class UserController {
             }
         }  catch (RuntimeException e) {
             e.printStackTrace();
+            return "login";
+        }
+    }
+
+    @PostMapping("/updateprofile")
+    public String updateProfile(HttpSession session, @RequestParam String firstname, @RequestParam String lastname, @RequestParam String email, @RequestParam String password) {
+        User currentUser = (User) session.getAttribute("loggedInUser");
+        if (currentUser != null) {
+            currentUser.setFirstName(firstname);
+            currentUser.setLastName(lastname);
+            currentUser.setEmail(email);
+            currentUser.setPassword(password);
+
+            currentUser.displayUser();
+
+            userService.updateUser(currentUser);
+
+            session.setAttribute("loggedInUser", currentUser);
+
+            return "redirect:/user/profile";
+        } else {
             return "login";
         }
     }

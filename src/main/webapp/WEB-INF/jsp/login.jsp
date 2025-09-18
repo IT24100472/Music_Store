@@ -96,6 +96,12 @@
                 ${error}
         </div>
     </c:if>
+    <c:if test="${not empty success}">
+        <div class="mb-6 p-4 bg-purple-100 text-purple-700 rounded-lg border border-purple-200 flex items-center">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+                ${success}
+        </div>
+    </c:if>
 
     <form id="loginForm" action="/user/login" method="post" class="space-y-5">
         <div>
