@@ -1,7 +1,9 @@
 package com.example.musicstore.service;
 
 import com.example.musicstore.model.User;
+import com.example.musicstore.service.DBUtil;
 import org.springframework.stereotype.Service;
+import org.yaml.snakeyaml.events.Event;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -25,7 +27,7 @@ public class UserService {
         }
     }
 
-public User getUser(String email, String password){
+    public User getUser(String email, String password){
         String sql = "SELECT * FROM Users WHERE Email = ? AND UPassword = ?";
         User user = null;
         try (Connection connection = DBUtil.getConnection(); PreparedStatement stmt = connection.prepareStatement(sql)){
@@ -42,9 +44,9 @@ public User getUser(String email, String password){
             e.printStackTrace();
         }
         return user;
-}
+    }
 
-public void updateUser(User user){
+    public void updateUser(User user){
         String sql = "UPDATE Users SET FirstName = ?, LastName = ?, Email = ?, UPassword = ? WHERE ID = ?";
         try(Connection connection = DBUtil.getConnection(); PreparedStatement stmt = connection.prepareStatement(sql)){
             stmt.setString(1, user.getFirstName());
@@ -57,7 +59,18 @@ public void updateUser(User user){
         } catch (SQLException e){
             e.printStackTrace();
         }
-}
+    }
+
+    public void deleteUser(User user){
+        String sql = "DELETE FROM Users WHERE ID = ?";
+        try(Connection connection = DBUtil.getConnection(); PreparedStatement stmt = connection.prepareStatement(sql)){
+            stmt.setInt(1, user.getId());
+
+            stmt.executeUpdate();
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
 
     public User checkUser(String email){
         String sql = "SELECT * FROM Users WHERE Email = ?";

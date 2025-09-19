@@ -146,7 +146,7 @@
         <c:if test="${not empty error}">
             <div class="mb-6 p-4 bg-red-100 text-red-700 rounded-lg border border-red-200 flex items-center">
                 <i class="fas fa-exclamation-circle mr-2"></i>
-                ${error}
+                    ${error}
             </div>
         </c:if>
 

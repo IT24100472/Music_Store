@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/user")
@@ -23,10 +24,10 @@ public class UserController {
     @PostMapping("/register")
     public ModelAndView register(@RequestParam String firstname, @RequestParam String lastname, @RequestParam String email, @RequestParam String usertype, @RequestParam String password) {
         try{
-            User checkUser = userService.checkUser(email);
+            User checkUser = userService.checkUser(email.trim().toLowerCase());
 
             if (checkUser == null) {
-                userService.addUser(firstname, lastname, email, usertype, password);
+                userService.addUser(firstname, lastname, email.trim().toLowerCase(), usertype, password);
 
                 ModelAndView modelAndView = new ModelAndView();
                 modelAndView.addObject("success", "Registration successful");
@@ -52,7 +53,7 @@ public class UserController {
     public String login(@RequestParam String email, @RequestParam String password,
                               HttpSession session, HttpServletResponse response, Model model) {
         try {
-        User currentUser = userService.getUser(email, password);
+        User currentUser = userService.getUser(email.trim().toLowerCase(), password);
 
             if (currentUser != null) {
                 session.setAttribute("loggedInUser", currentUser);
@@ -67,21 +68,24 @@ public class UserController {
                 role.setPath("/");
                 response.addCookie(role);
 
-                switch (currentUser.getUserType()) {
+                switch (currentUser.getUserType().trim().toLowerCase()) {
                     case "admin":
                         return "admin";
                     case "user":
-                        return "index";
+                        return "home";
+                    case "artist":
+                        return "home";
 
                 }
             } else {
                 model.addAttribute("error", "Username or password incorrect");
                 return "login";
             }
-            return "index";
+            return "login";
         } catch (RuntimeException e) {
             e.printStackTrace();
-            return "index";
+            model.addAttribute("error", "An unexpected error occurred!");
+            return "login";
 
         }
 
@@ -96,22 +100,23 @@ public class UserController {
                 model.addAttribute("user", user);
                 return "profile";
             } else {
-                System.out.println("Error");
+                model.addAttribute("error", "You are not logged in");
                 return "login";
             }
         }  catch (RuntimeException e) {
             e.printStackTrace();
+            model.addAttribute("error", "An unexpected error occurred!");
             return "login";
         }
     }
 
     @PostMapping("/updateprofile")
-    public String updateProfile(HttpSession session, @RequestParam String firstname, @RequestParam String lastname, @RequestParam String email, @RequestParam String password) {
+    public String updateProfile(HttpSession session, @RequestParam String firstname, @RequestParam String lastname, @RequestParam String email, @RequestParam String password, Model model, RedirectAttributes redirectAttributes) {
         User currentUser = (User) session.getAttribute("loggedInUser");
         if (currentUser != null) {
             currentUser.setFirstName(firstname);
             currentUser.setLastName(lastname);
-            currentUser.setEmail(email);
+            currentUser.setEmail(email.trim().toLowerCase());
             currentUser.setPassword(password);
 
             currentUser.displayUser();
@@ -119,9 +124,32 @@ public class UserController {
             userService.updateUser(currentUser);
 
             session.setAttribute("loggedInUser", currentUser);
+            redirectAttributes.addFlashAttribute("success", "Profile updated successfully");
+
 
             return "redirect:/user/profile";
         } else {
+            model.addAttribute("error", "You are not logged in");
+            return "login";
+        }
+    }
+
+    @GetMapping("/deleteprofile")
+    public String deleteProfile(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+        User currentUser = (User) session.getAttribute("loggedInUser");
+        try {
+            if (currentUser != null) {
+                userService.deleteUser(currentUser);
+                session.invalidate();
+                redirectAttributes.addFlashAttribute("success", "Profile deleted successfully");
+                return "redirect:/login";
+            }  else {
+                model.addAttribute("error", "You are not logged in");
+                return "login";
+            }
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            model.addAttribute("error", "An unexpected error occurred!");
             return "login";
         }
     }

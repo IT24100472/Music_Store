@@ -154,7 +154,11 @@
 
     const loginButtons = `
         <a href="/login" class="bg-purple-600 hover:bg-purple-500 px-5 py-2.5 rounded-md text-white font-medium transition-colors">Login</a>
-        <a href="/" class="bg-purple-500 hover:bg-purple-400 px-5 py-2.5 rounded-md text-white font-medium transition-colors">Register</a>
+        <a href="/register" class="bg-purple-500 hover:bg-purple-400 px-5 py-2.5 rounded-md text-white font-medium transition-colors">Register</a>
+    `;
+
+    const artistButton = `
+        <a href="/artist" class="bg-blue-600 hover:bg-blue-500 px-5 py-2.5 rounded-md text-white font-medium transition-colors">Artist Portal</a>
     `;
 
     const browseButton = `
@@ -162,6 +166,10 @@
     `;
 
     const songsButton = `
+        <a href="/songs" class="px-4 py-3 rounded-md text-lg font-medium hover:bg-purple-700 transition-colors">My Songs</a>
+    `;
+
+    const aSongsButton = `
         <a href="/songs" class="px-4 py-3 rounded-md text-lg font-medium hover:bg-purple-700 transition-colors">My Songs</a>
     `;
 
@@ -192,9 +200,18 @@
         if (userRole === 'admin') {
             desktopAuthButtons.insertAdjacentHTML('beforeend', dashboardLink);
         }
+        if (userRole === 'user') {
+            homeButton.insertAdjacentHTML('afterend', browseButton);
+            contactButton.insertAdjacentHTML('beforebegin', songsButton);
+        }
+        if (userRole === 'artist') {
+            contactButton.insertAdjacentHTML('afterend', artistButton);
+            contactButton.insertAdjacentHTML('beforebegin', aSongsButton);
+        }
+
+
+
         desktopAuthButtons.insertAdjacentHTML('beforeend', logoutButton);
-        homeButton.insertAdjacentHTML('afterend', browseButton)
-        contactButton.insertAdjacentHTML('beforebegin', songsButton)
     } else {
         // Not logged in: show login/register
         desktopAuthButtons.insertAdjacentHTML('beforeend', loginButtons);
