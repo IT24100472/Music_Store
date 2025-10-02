@@ -1,9 +1,7 @@
 package com.example.musicstore.service;
 
 import com.example.musicstore.model.User;
-import com.example.musicstore.service.DBUtil;
 import org.springframework.stereotype.Service;
-import org.yaml.snakeyaml.events.Event;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,7 +10,7 @@ import java.sql.SQLException;
 
 @Service
 public class UserService {
-    public void addUser (String firstname, String lastname, String email, String usertype, String password){
+    public void addUser (String firstname, String lastname, String email, String usertype, String password) throws SQLException {
         String sql = "INSERT INTO Users (ID, FirstName, LastName, Email, UserType, UPassword) VALUES (?,?,?,?,?,?)";
         try(Connection connection = DBUtil.getConnection(); PreparedStatement stmt = connection.prepareStatement(sql)){
             stmt.setInt(1, calculateUserId());
@@ -22,12 +20,10 @@ public class UserService {
             stmt.setString(5, usertype);
             stmt.setString(6, password);
             stmt.execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
-    public User getUser(String email, String password){
+public User getUser(String email, String password){
         String sql = "SELECT * FROM Users WHERE Email = ? AND UPassword = ?";
         User user = null;
         try (Connection connection = DBUtil.getConnection(); PreparedStatement stmt = connection.prepareStatement(sql)){
@@ -44,9 +40,9 @@ public class UserService {
             e.printStackTrace();
         }
         return user;
-    }
+}
 
-    public void updateUser(User user){
+public void updateUser(User user){
         String sql = "UPDATE Users SET FirstName = ?, LastName = ?, Email = ?, UPassword = ? WHERE ID = ?";
         try(Connection connection = DBUtil.getConnection(); PreparedStatement stmt = connection.prepareStatement(sql)){
             stmt.setString(1, user.getFirstName());
@@ -59,7 +55,7 @@ public class UserService {
         } catch (SQLException e){
             e.printStackTrace();
         }
-    }
+}
 
     public void deleteUser(User user){
         String sql = "DELETE FROM Users WHERE ID = ?";

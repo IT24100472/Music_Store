@@ -4,26 +4,29 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-class DBUtil {
-    // Change these values according to your SQL Server setup
-    private static final String DB_URL = "jdbc:sqlserver://localhost:1433;databaseName=MusicStore;encrypt=true;trustServerCertificate=true";
+public class DBUtil {
+
+    // ✅ Update these values to match your SQL Server configuration
+    private static final String DB_URL =
+            "jdbc:sqlserver://localhost:1433;databaseName=MusicStore;encrypt=true;trustServerCertificate=true";
     private static final String DB_USER = "sa";
     private static final String DB_PASSWORD = "123";
 
-    private static Connection connection;
-
-    // Get connection (lazy initialized)
+    /**
+     * Always returns a NEW database connection.
+     * Use inside try-with-resources:
+     *
+     * try (Connection conn = DBUtil.getConnection()) { ... }
+     */
     public static Connection getConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            try {
-                connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-                System.out.println("✅ Database connection established.");
-            } catch (SQLException e) {
-                System.err.println("❌ Failed to connect to database: " + e.getMessage());
-                throw e;
-            }
+        try {
+            return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+        } catch (SQLException e) {
+            System.err.println("❌ Database connection failed: " + e.getMessage());
+            throw e; // Let caller handle the exception
         }
-        return connection;
     }
 
+    // Prevent instantiation
+    private DBUtil() {}
 }

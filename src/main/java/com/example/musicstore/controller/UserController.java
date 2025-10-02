@@ -1,6 +1,8 @@
 package com.example.musicstore.controller;
 
 import com.example.musicstore.model.User;
+import com.example.musicstore.service.BrowseService;
+import com.example.musicstore.service.PaymentService;
 import com.example.musicstore.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,6 +22,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private BrowseService  browseService;
+    @Autowired
+    private PaymentService paymentService;
 
     @PostMapping("/register")
     public ModelAndView register(@RequestParam String firstname, @RequestParam String lastname, @RequestParam String email, @RequestParam String usertype, @RequestParam String password) {
@@ -70,7 +76,7 @@ public class UserController {
 
                 switch (currentUser.getUserType().trim().toLowerCase()) {
                     case "admin":
-                        return "admin";
+                        return "redirect:/admin";
                     case "user":
                         return "home";
                     case "artist":
@@ -139,6 +145,9 @@ public class UserController {
         User currentUser = (User) session.getAttribute("loggedInUser");
         try {
             if (currentUser != null) {
+                browseService.deleteUserFromWishlist(currentUser);
+                paymentService.deleteCartAfterBuy(currentUser.getId());
+                paymentService.deleteBoughtSongs(currentUser);
                 userService.deleteUser(currentUser);
                 session.invalidate();
                 redirectAttributes.addFlashAttribute("success", "Profile deleted successfully");

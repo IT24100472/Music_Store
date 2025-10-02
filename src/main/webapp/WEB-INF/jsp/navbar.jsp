@@ -162,15 +162,19 @@
     `;
 
     const browseButton = `
-        <a href="/" class="px-4 py-3 rounded-md text-lg font-medium hover:bg-purple-700 transition-colors">Browse</a>
+        <a href="/browse" class="px-4 py-3 rounded-md text-lg font-medium hover:bg-purple-700 transition-colors">Browse</a>
+    `;
+
+    const wishButton = `
+        <a href="/browse/wishlist" class="px-4 py-3 rounded-md text-lg font-medium hover:bg-purple-700 transition-colors">My Wishlist</a>
     `;
 
     const songsButton = `
-        <a href="/songs" class="px-4 py-3 rounded-md text-lg font-medium hover:bg-purple-700 transition-colors">My Songs</a>
+        <a href="/cart/mysongs" class="px-4 py-3 rounded-md text-lg font-medium hover:bg-purple-700 transition-colors">My Songs</a>
     `;
 
     const aSongsButton = `
-        <a href="/songs" class="px-4 py-3 rounded-md text-lg font-medium hover:bg-purple-700 transition-colors">My Songs</a>
+        <a href="/artist/mysongs" class="px-4 py-3 rounded-md text-lg font-medium hover:bg-purple-700 transition-colors">My Songs</a>
     `;
 
     const mobileLoginButtons = `
@@ -194,6 +198,11 @@
         </a>
     `;
 
+    const shoppingCart = `
+        <a href="/cart" class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-purple-700 transition-colors ml-2">
+    <i class="fas fa-shopping-cart text-white text-xl"></i>
+    `;
+
     // Desktop view
     if (isLoggedIn) {
         // Admin dashboard link
@@ -203,6 +212,8 @@
         if (userRole === 'user') {
             homeButton.insertAdjacentHTML('afterend', browseButton);
             contactButton.insertAdjacentHTML('beforebegin', songsButton);
+            contactButton.insertAdjacentHTML('beforebegin', wishButton);
+            contactButton.insertAdjacentHTML('afterend', shoppingCart);
         }
         if (userRole === 'artist') {
             contactButton.insertAdjacentHTML('afterend', artistButton);
