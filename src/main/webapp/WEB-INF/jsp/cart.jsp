@@ -265,7 +265,7 @@
                 <div class="cart-summary">
                     <div class="total-price">
                         <span class="total-label">Total Price:</span>
-                        <span class="total-value">$${price}</span>
+                        <span class="total-value">Rs ${price}</span>
                     </div>
                     <form action="/cart/buy/${price}" method="get" style="display:inline; width:100%;">
                         <button type="submit" class="buy-btn">
