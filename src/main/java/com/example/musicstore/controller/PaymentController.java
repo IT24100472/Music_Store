@@ -2,7 +2,9 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Songs;
 import com.example.demo.model.User;
+import com.example.demo.service.CardPayment;
 import com.example.demo.service.PaymentService;
+import com.example.demo.service.PaypalPayment;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -65,17 +67,41 @@ public class PaymentController {
     }
 
     @GetMapping("/buy/{price}")
-    public String sendToPaymentGateway(@PathVariable int price, Model model){
-        model.addAttribute("price", price);
-        return "cardPayment";
+    public String sendToPaymentGateway(@PathVariable int price, @RequestParam String paymenttype, Model model, HttpSession session){
+        User currentUser = (User) session.getAttribute("loggedInUser");
+        if (currentUser != null) {
+            model.addAttribute("price", price);
+
+            if ("paypal".equalsIgnoreCase(paymenttype)) {
+                paymentService.setPaymentStrategy(new PaypalPayment());
+            } else {
+                paymentService.setPaymentStrategy(new CardPayment());
+            }
+
+            paymentService.processPayment(price);
+
+            List<Songs> songs = paymentService.viewCart(currentUser.getId());
+            paymentService.addCustomerSongs(currentUser.getId(), songs);
+            paymentService.deleteCartAfterBuy(currentUser.getId());
+            return "redirect:/cart/mysongs";
+        } else {
+            return "redirect:/login";
+        }
     }
 
-    @PostMapping("/paid")
+    /*@PostMapping("/paid")
     public String completePayment(HttpSession session){
         User currentUser = (User) session.getAttribute("loggedInUser");
         List<Songs> songs = paymentService.viewCart(currentUser.getId());
         paymentService.addCustomerSongs(currentUser.getId(), songs);
         paymentService.deleteCartAfterBuy(currentUser.getId());
         return "redirect:/cart/mysongs";
+    }*/
+
+    @PostMapping("/update/{MID}")
+    public String updateQuality(@PathVariable int MID, @RequestParam int quality, HttpSession session){
+        User currentUser = (User) session.getAttribute("loggedInUser");
+        paymentService.updateQquality(currentUser.getId(), MID, quality);
+        return "redirect:/cart";
     }
 }
