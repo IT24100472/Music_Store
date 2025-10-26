@@ -90,7 +90,7 @@
             </div>
         </div>
 
-        <button type="submit" class="pay-btn">Pay ${price}</button>
+        <button type="submit" class="pay-btn">Pay Rs ${price}</button>
     </form>
 </div>
 
