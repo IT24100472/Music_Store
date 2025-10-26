@@ -131,7 +131,7 @@
         </div>
 
         <div class="mt-12 text-purple-200 text-sm">
-            <p>Already have an account? <a href="#" class="text-white font-medium underline">Sign in here</a></p>
+            <p>Already have an account? <a href="/login" class="text-white font-medium underline">Sign in here</a></p>
         </div>
     </div>
 
@@ -150,7 +150,7 @@
             </div>
         </c:if>
 
-        <form id="registrationForm" action="user/register" method="post" class="space-y-5">
+        <form id="registrationForm" action="/user/register" method="post" class="space-y-5">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                     <input type="text" name="firstname" placeholder="First Name" class="w-full bg-gray-50 text-gray-800 px-4 py-3.5 rounded-lg border border-gray-200 focus:outline-none purple-focus" required>

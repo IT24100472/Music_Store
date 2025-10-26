@@ -119,7 +119,7 @@
     </form>
 
     <div class="text-center mt-8">
-        <p class="text-gray-600">Don't have an account? <a href="/user/register" class="text-purple-700 font-medium hover:text-purple-800">Sign up</a></p>
+        <p class="text-gray-600">Don't have an account? <a href="/register" class="text-purple-700 font-medium hover:text-purple-800">Sign up</a></p>
     </div>
 </div>
 

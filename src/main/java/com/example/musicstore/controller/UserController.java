@@ -49,7 +49,7 @@ public class UserController {
             e.printStackTrace();
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.addObject("error", "An unexpected error occurred!");
-            modelAndView.setViewName("index"); // create error.jsp
+            modelAndView.setViewName("index");
             return modelAndView;
         }
 
@@ -117,23 +117,39 @@ public class UserController {
     }
 
     @PostMapping("/updateprofile")
-    public String updateProfile(HttpSession session, @RequestParam String firstname, @RequestParam String lastname, @RequestParam String email, @RequestParam String password, Model model, RedirectAttributes redirectAttributes) {
+    public String updateProfile(HttpSession session, @RequestParam String firstname, @RequestParam String lastname, @RequestParam String email, @RequestParam(required = false) String password, Model model, RedirectAttributes redirectAttributes) {
         User currentUser = (User) session.getAttribute("loggedInUser");
         if (currentUser != null) {
-            currentUser.setFirstName(firstname);
-            currentUser.setLastName(lastname);
-            currentUser.setEmail(email.trim().toLowerCase());
-            currentUser.setPassword(password);
+            if (!password.isEmpty()) {
+                currentUser.setFirstName(firstname);
+                currentUser.setLastName(lastname);
+                currentUser.setEmail(email.trim().toLowerCase());
+                currentUser.setPassword(password);
 
-            currentUser.displayUser();
+                currentUser.displayUser();
 
-            userService.updateUser(currentUser);
+                userService.updateUser(currentUser);
 
-            session.setAttribute("loggedInUser", currentUser);
-            redirectAttributes.addFlashAttribute("success", "Profile updated successfully");
+                session.setAttribute("loggedInUser", currentUser);
+                redirectAttributes.addFlashAttribute("success", "Profile updated successfully");
 
 
-            return "redirect:/user/profile";
+                return "redirect:/user/profile";
+            } else {
+                currentUser.setFirstName(firstname);
+                currentUser.setLastName(lastname);
+                currentUser.setEmail(email.trim().toLowerCase());
+
+                currentUser.displayUser();
+
+                userService.updateUser(currentUser);
+
+                session.setAttribute("loggedInUser", currentUser);
+                redirectAttributes.addFlashAttribute("success", "Profile updated successfully");
+
+
+                return "redirect:/user/profile";
+            }
         } else {
             model.addAttribute("error", "You are not logged in");
             return "login";
@@ -161,5 +177,11 @@ public class UserController {
             model.addAttribute("error", "An unexpected error occurred!");
             return "login";
         }
+    }
+
+    @GetMapping("/logout")
+    public void logout(HttpSession session){
+        session.invalidate();
+        System.out.println("Session invalidated");
     }
 }

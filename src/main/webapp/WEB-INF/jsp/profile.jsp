@@ -127,6 +127,45 @@
             background: #e2e8f0;
             margin: 2rem 0;
         }
+        /* Password validation styles */
+        .validation-error {
+            color: #e53e3e;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .input-error {
+            border-color: #e53e3e;
+            box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+        }
+
+        .password-strength {
+            height: 5px;
+            border-radius: 3px;
+            margin-top: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .password-weak {
+            background-color: #e53e3e;
+            width: 33%;
+        }
+
+        .password-medium {
+            background-color: #d69e2e;
+            width: 66%;
+        }
+
+        .password-strong {
+            background-color: #38a169;
+            width: 100%;
+        }
+
+        .password-strength-text {
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body class="flex justify-center items-start pt-20 pb-10 px-4">
@@ -144,7 +183,7 @@
         </c:if>
 
         <!-- User form -->
-        <form action="/user/updateprofile" method="post" class="space-y-6">
+        <form id = "registrationForm" action="/user/updateprofile" method="post" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="form-group">
                     <label class="form-label">First name</label>
@@ -169,13 +208,21 @@
 
             <div class="form-group">
                 <label class="form-label">Password</label>
-                <input type="password" name="password" placeholder="Enter new password" class="form-input purple-focus"/>
+                <input type="password" id="password" name="password" placeholder="Enter new password" class="form-input purple-focus"/>
                 <p class="text-sm text-gray-500 mt-1">Leave blank to keep current password</p>
+                <div id="passwordError" class="validation-error">
+                    <i class="fas fa-exclamation-circle mr-1"></i> Password must be at least 8 characters with uppercase, lowercase, number, and special character
+                </div>
+                <div id="passwordStrength" class="password-strength"></div>
+                <div id="passwordStrengthText" class="password-strength-text"></div>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Confirm password</label>
-                <input type="password" name="confirm_password" placeholder="Confirm new password" class="form-input purple-focus"/>
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm new password" class="form-input purple-focus"/>
+                <div id="confirmPasswordError" class="validation-error">
+                    <i class="fas fa-exclamation-circle mr-1"></i> Passwords do not match
+                </div>
             </div>
 
             <button type="submit" class="w-full btn-purple text-white font-medium py-3.5 rounded-lg transition">
@@ -205,6 +252,141 @@
             // Allow form to submit after cookies are cleared
             return true;
         }
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const registrationForm = document.getElementById('registrationForm');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirm_password');
+            const passwordError = document.getElementById('passwordError');
+            const confirmPasswordError = document.getElementById('confirmPasswordError');
+            const passwordStrength = document.getElementById('passwordStrength');
+            const passwordStrengthText = document.getElementById('passwordStrengthText');
+
+            // Password strength checker
+            function checkPasswordStrength(password) {
+                // Define strength criteria
+                const hasUpperCase = /[A-Z]/.test(password);
+                const hasLowerCase = /[a-z]/.test(password);
+                const hasNumbers = /\d/.test(password);
+                const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+                const isLongEnough = password.length >= 8;
+
+                // Calculate strength score
+                let strength = 0;
+                if (hasUpperCase) strength++;
+                if (hasLowerCase) strength++;
+                if (hasNumbers) strength++;
+                if (hasSpecialChar) strength++;
+                if (isLongEnough) strength++;
+
+                return strength;
+            }
+
+            // Update password strength indicator
+            function updatePasswordStrength(password) {
+                const strength = checkPasswordStrength(password);
+
+                // Clear previous classes
+                passwordStrength.className = 'password-strength';
+
+                if (password.length === 0) {
+                    passwordStrength.style.display = 'none';
+                    passwordStrengthText.textContent = '';
+                    return;
+                }
+
+                passwordStrength.style.display = 'block';
+
+                if (strength <= 2) {
+                    passwordStrength.classList.add('password-weak');
+                    passwordStrengthText.textContent = 'Weak password';
+                    passwordStrengthText.style.color = '#e53e3e';
+                } else if (strength <= 4) {
+                    passwordStrength.classList.add('password-medium');
+                    passwordStrengthText.textContent = 'Medium strength password';
+                    passwordStrengthText.style.color = '#d69e2e';
+                } else {
+                    passwordStrength.classList.add('password-strong');
+                    passwordStrengthText.textContent = 'Strong password';
+                    passwordStrengthText.style.color = '#38a169';
+                }
+            }
+
+            // Validate password strength
+            function isPasswordStrong(password) {
+                return checkPasswordStrength(password) >= 4; // At least medium strength
+            }
+
+            // Event listener for password input
+            passwordInput.addEventListener('input', function() {
+                updatePasswordStrength(this.value);
+
+                // Clear error when user starts typing
+                if (passwordError.style.display === 'block') {
+                    passwordError.style.display = 'none';
+                    this.classList.remove('input-error');
+                }
+
+                // Check if confirm password matches
+                if (confirmPasswordInput.value && this.value !== confirmPasswordInput.value) {
+                    confirmPasswordError.style.display = 'block';
+                    confirmPasswordInput.classList.add('input-error');
+                } else {
+                    confirmPasswordError.style.display = 'none';
+                    confirmPasswordInput.classList.remove('input-error');
+                }
+            });
+
+            // Event listener for confirm password input
+            confirmPasswordInput.addEventListener('input', function() {
+                if (this.value !== passwordInput.value) {
+                    confirmPasswordError.style.display = 'block';
+                    this.classList.add('input-error');
+                } else {
+                    confirmPasswordError.style.display = 'none';
+                    this.classList.remove('input-error');
+                }
+            });
+
+// Form submission validation
+            registrationForm.addEventListener('submit', function(event) {
+                let isValid = true;
+
+                const password = passwordInput.value.trim();
+                const confirmPassword = confirmPasswordInput.value.trim();
+
+                // ✅ Only validate password if user entered something
+                if (password.length > 0 || confirmPassword.length > 0) {
+
+                    // Check if password is strong enough
+                    if (!isPasswordStrong(password)) {
+                        passwordError.style.display = 'block';
+                        passwordInput.classList.add('input-error');
+                        isValid = false;
+                    }
+
+                    // Check if passwords match
+                    if (password !== confirmPassword) {
+                        confirmPasswordError.style.display = 'block';
+                        confirmPasswordInput.classList.add('input-error');
+                        isValid = false;
+                    }
+                }
+
+                // Prevent form submission if validation fails
+                if (!isValid) {
+                    event.preventDefault();
+
+                    // Scroll to the first error
+                    const firstError = document.querySelector('.input-error');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            });
+
+        });
     </script>
 </body>
 </html>
