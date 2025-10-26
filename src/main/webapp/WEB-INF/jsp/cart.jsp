@@ -126,6 +126,17 @@
             border-radius: 50%;
         }
 
+        .quality-row {
+            align-items: center;
+        }
+
+        .quality-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+
         .delete-btn:hover {
             background-color: #fed7d7;
             transform: scale(1.1);
@@ -176,6 +187,28 @@
 
         .buy-btn:hover {
             background: #2f855a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(56, 161, 105, 0.3);
+        }
+
+        .update-btn {
+            width: auto;
+            background: #e7df44;
+            color: white;
+            padding: 5px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .update-btn:hover {
+            background: #bab438;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(56, 161, 105, 0.3);
         }
@@ -238,7 +271,8 @@
                                 <div class="item-info">
                                     <div class="info-row">
                                         <span class="info-label">Artist:</span>
-                                        <span class="info-value">${song.artist}</span>
+                                        <span class="info-value">${song.artist} </span>
+
                                     </div>
                                     <div class="info-row">
                                         <span class="info-label">Band:</span>
@@ -249,6 +283,20 @@
                                             </c:choose>
                                         </span>
                                     </div>
+                                    <form action="cart/update/${song.MID}" method="post">
+                                    <div class="info-row quality-row">
+    <span class="info-label">Quality:</span>
+    <div class="quality-actions">
+        <select name="quality">
+            <option value="128">128 kbps</option>
+            <option value="160">160 kbps</option>
+            <option value="256">256 kbps</option>
+        </select>
+        <input type="submit" value="Update" class="update-btn">
+    </div>
+</div>
+
+                                    </form>
                                 </div>
                             </div>
                             <div class="item-actions">
@@ -261,18 +309,28 @@
                         </div>
                     </c:forEach>
                 </div>
-
+<form action="/cart/buy/${price}" method="get" style="display:inline; width:100%;">
                 <div class="cart-summary">
+                <span class="info-label">Select Payment type:</span>
+    <div class="quality-actions">
+        <select name="paymenttype">
+            <option value="Card">Card</option>
+            <option value="Paypal">Paypal</option>
+        </select>
+    </div>
+</div>
+
                     <div class="total-price">
                         <span class="total-label">Total Price:</span>
-                        <span class="total-value">$${price}</span>
+                        <span class="total-value">Rs ${price}</span>
                     </div>
-                    <form action="/cart/buy/${price}" method="get" style="display:inline; width:100%;">
+
                         <button type="submit" class="buy-btn">
                             <i class="fas fa-credit-card mr-2"></i> Buy All
                         </button>
-                    </form>
-                </div>
+
+
+                </form>
             </c:when>
             <c:otherwise>
                 <div class="empty-state">
