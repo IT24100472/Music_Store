@@ -13,11 +13,26 @@ import java.util.List;
 
 @Service
 public class PaymentService {
+    private PaymentStrategy paymentStrategy;
+
+    public void setPaymentStrategy(PaymentStrategy strategy) {
+        this.paymentStrategy = strategy;
+    }
+
+    public void processPayment(double amount) {
+        if (paymentStrategy == null) {
+            throw new IllegalStateException("Payment strategy not set");
+        }
+        paymentStrategy.pay(amount);
+    }
+
+
     public void addCart(int id, int mid) throws SQLException {
-        String sql = "INSERT INTO Cart (ID, MID) VALUES (?,?)";
+        String sql = "INSERT INTO Cart (ID, MID, Quality) VALUES (?,?,?)";
         try (Connection connection = DBUtil.getConnection(); PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             stmt.setInt(2, mid);
+            stmt.setInt(3, 128);
             stmt.execute();
         }
     }
@@ -109,6 +124,19 @@ public class PaymentService {
             stmt.setInt(1, user.getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateQquality(int id, int mid, int quality){
+        String sql = "UPDATE Cart SET Quality = ? WHERE MID = ? AND ID = ?";
+        try(Connection connection = DBUtil.getConnection(); PreparedStatement stmt = connection.prepareStatement(sql)){
+            stmt.setInt(1, quality);
+            stmt.setInt(2, mid);
+            stmt.setInt(3, id);
+
+            stmt.executeUpdate();
+        } catch (SQLException e){
             e.printStackTrace();
         }
     }
